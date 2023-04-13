@@ -22,8 +22,8 @@ func (r *NoteService) GetAll() (*[]models.Note, error) {
 	return notes, err
 }
 
-func (r *NoteService) GetById(noteId primitive.ObjectID) (*models.Note, error) {
-	note, err := r.repo.GetById(&noteId)
+func (r *NoteService) GetById(noteId *primitive.ObjectID) (*models.Note, error) {
+	note, err := r.repo.GetById(noteId)
 	return note, err
 }
 

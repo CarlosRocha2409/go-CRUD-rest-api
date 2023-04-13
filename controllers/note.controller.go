@@ -8,12 +8,9 @@ import (
 	"github.com/CarlosRocha2409/go-rest-api/services"
 	"github.com/CarlosRocha2409/go-rest-api/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
-
-var validate = validator.New()
 
 type NoteController struct {
 	service *services.NoteService
@@ -46,22 +43,13 @@ func (ct *NoteController) GetAll() gin.HandlerFunc {
 
 func (ct *NoteController) GetById() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		noteId := c.Param("noteId")
+		id, _ := c.Get("id")
 
-		id, err := primitive.ObjectIDFromHex(noteId)
-
-		if err != nil {
-			utils.MakeResponse(c, http.StatusBadRequest, "error", gin.H{
-				"error": "Please provide a valid Id",
-			})
-			return
-		}
-
-		result, err := ct.service.GetById(id)
+		result, err := ct.service.GetById(id.(*primitive.ObjectID))
 
 		if err != nil {
 			utils.MakeResponse(c, http.StatusBadRequest, "error", gin.H{
-				"error": err.Error(),
+				"error": fmt.Sprintf("User with id: %v", id.(*primitive.ObjectID).String()),
 			})
 			return
 		}
@@ -75,23 +63,8 @@ func (ct *NoteController) GetById() gin.HandlerFunc {
 
 func (ct *NoteController) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var note models.Note
-
-		if err := c.BindJSON(&note); err != nil {
-			utils.MakeResponse(c, http.StatusBadRequest, "error", gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-
-		if vErr := validate.Struct(&note); vErr != nil {
-			utils.MakeResponse(c, http.StatusBadRequest, "error", gin.H{
-				"error": vErr.Error(),
-			})
-			return
-		}
-
-		result, err := ct.service.Create(&note)
+		note, _ := c.Get("body")
+		result, err := ct.service.Create(note.(*models.Note))
 
 		if err != nil {
 			utils.MakeResponse(c, http.StatusBadRequest, "error", gin.H{
@@ -109,34 +82,10 @@ func (ct *NoteController) Create() gin.HandlerFunc {
 
 func (ct *NoteController) Update() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		noteId := c.Param("noteId")
-		var note models.Note
+		id, _ := c.Get("id")
+		note, _ := c.Get("body")
 
-		id, err := primitive.ObjectIDFromHex(noteId)
-
-		if err != nil {
-			utils.MakeResponse(c, http.StatusBadRequest, "error", gin.H{
-				"error": "Please provide a valid Id",
-			})
-			return
-		}
-
-		if err := c.BindJSON(&note); err != nil {
-
-			utils.MakeResponse(c, http.StatusBadRequest, "error", gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-
-		if vErr := validate.Struct(&note); vErr != nil {
-			utils.MakeResponse(c, http.StatusBadRequest, "error", gin.H{
-				"error": vErr.Error(),
-			})
-			return
-		}
-
-		result, err := ct.service.Update(&id, &note)
+		result, err := ct.service.Update(id.(*primitive.ObjectID), note.(*models.Note))
 
 		if err != nil {
 			utils.MakeResponse(c, http.StatusBadRequest, "error", gin.H{

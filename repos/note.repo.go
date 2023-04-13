@@ -2,6 +2,7 @@ package repos
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/CarlosRocha2409/go-rest-api/configs"
@@ -52,8 +53,14 @@ func (r *NoteRepo) GetById(noteId *primitive.ObjectID) (*models.Note, error) {
 	defer cancel()
 	err := r.notes.FindOne(ctx, bson.M{"id": noteId}).Decode(&note)
 
-	return &note, err
+	if err != nil {
+		if err.Error() == mongo.ErrNoDocuments.Error() {
+			err = fmt.Errorf("note with id %v not found", (*noteId).Hex())
+		}
+		return &note, err
 
+	}
+	return &note, err
 }
 
 func (r *NoteRepo) Create(note *models.Note) (*interface{}, error) {
@@ -82,6 +89,13 @@ func (r *NoteRepo) Update(id *primitive.ObjectID, note *models.Note) (*mongo.Upd
 	}
 
 	result, err := r.notes.UpdateOne(ctx, bson.M{"id": (*id)}, bson.M{"$set": newNote})
+
+	if err != nil {
+		if err.Error() == mongo.ErrNoDocuments.Error() {
+			err = fmt.Errorf("note with id %v not found", (*id).Hex())
+		}
+		return result, err
+	}
 
 	return result, err
 }
