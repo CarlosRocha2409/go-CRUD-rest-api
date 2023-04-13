@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"net/http"
 	"reflect"
 
@@ -34,7 +33,6 @@ func ValidateJson(modelPtr interface{}) gin.HandlerFunc {
 		model := reflect.New(reflect.TypeOf(modelPtr)).Interface()
 
 		if err := c.BindJSON(&model); err != nil {
-			fmt.Println("aqui fue")
 			MakeResponse(c, http.StatusBadRequest, "error", gin.H{
 				"error": err.Error(),
 			})

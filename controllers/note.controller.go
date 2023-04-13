@@ -39,13 +39,9 @@ func (ct *NoteController) GetAll() gin.HandlerFunc {
 			limit = queryLimit
 		}
 
-		fmt.Println(page)
-		fmt.Println(limit)
-
 		notes, err := ct.service.GetAll(page, limit)
 
 		if err != nil {
-			fmt.Println(err.Error())
 			utils.MakeResponse(c, http.StatusBadRequest, "error", gin.H{
 				"error": "Error getting notes",
 			})
