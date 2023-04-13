@@ -17,8 +17,8 @@ func NewNoteService(client *mongo.Client) *NoteService {
 	}
 }
 
-func (r *NoteService) GetAll() (*[]models.Note, error) {
-	notes, err := r.repo.GetAll()
+func (r *NoteService) GetAll(limit int64, page int64) (*[]models.Note, error) {
+	notes, err := r.repo.GetAll(&limit, &page)
 	return notes, err
 }
 

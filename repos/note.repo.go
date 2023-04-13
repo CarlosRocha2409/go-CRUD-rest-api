@@ -7,6 +7,7 @@ import (
 
 	"github.com/CarlosRocha2409/go-rest-api/configs"
 	"github.com/CarlosRocha2409/go-rest-api/models"
+	"github.com/CarlosRocha2409/go-rest-api/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -22,12 +23,12 @@ func NewNoteRepo(client *mongo.Client) *NoteRepo {
 	}
 }
 
-func (r *NoteRepo) GetAll() (*[]models.Note, error) {
+func (r *NoteRepo) GetAll(page *int64, limit *int64) (*[]models.Note, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	var notes []models.Note
 	defer cancel()
 
-	results, err := r.notes.Find(ctx, bson.M{})
+	results, err := r.notes.Find(ctx, bson.M{}, utils.GetPaginationOptions(limit, page))
 
 	if err != nil {
 		return &notes, err

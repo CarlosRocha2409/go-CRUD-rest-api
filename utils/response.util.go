@@ -16,11 +16,11 @@ func MakeResponse(c *gin.Context, status int, msg string, data gin.H) {
 
 }
 
-func MakePaginatedResponse(c *gin.Context, status int, msg string, data interface{}) {
+func MakePaginatedResponse(c *gin.Context, status int, msg string, data interface{}, limit int64, page int64) {
 	c.JSON(status,
 		responses.PaginationResponse{
-			Limit: 4,
-			Page:  5,
+			Limit: limit,
+			Page:  page,
 			GenericResponse: responses.GenericResponse{
 				Status:  status,
 				Message: msg,

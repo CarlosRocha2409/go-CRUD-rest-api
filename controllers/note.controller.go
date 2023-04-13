@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/CarlosRocha2409/go-rest-api/models"
 	"github.com/CarlosRocha2409/go-rest-api/services"
@@ -24,8 +25,24 @@ func NewNoteController(client *mongo.Client) *NoteController {
 
 func (ct *NoteController) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		var page int64 = 1
+		var limit int64 = 5
 
-		notes, err := ct.service.GetAll()
+		queryPage, ep := strconv.ParseInt(c.Query("page"), 10, 64)
+		queryLimit, el := strconv.ParseInt(c.Query("limit"), 10, 64)
+
+		if ep == nil {
+			page = queryPage
+		}
+
+		if el == nil {
+			limit = queryLimit
+		}
+
+		fmt.Println(page)
+		fmt.Println(limit)
+
+		notes, err := ct.service.GetAll(page, limit)
 
 		if err != nil {
 			fmt.Println(err.Error())
@@ -37,7 +54,7 @@ func (ct *NoteController) GetAll() gin.HandlerFunc {
 
 		utils.MakePaginatedResponse(c, http.StatusOK, "Ok", gin.H{
 			"notes": notes,
-		})
+		}, limit, page)
 	}
 }
 
